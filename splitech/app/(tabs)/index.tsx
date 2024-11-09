@@ -1,11 +1,28 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Button, Platform } from 'react-native';
+import database from '@react-native-firebase/database';
+import firebase from '@react-native-firebase/app';
+import { firebaseConfig } from '../../firebaseConfig';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
 export default function HomeScreen() {
+
+  const writeRandomData = () => {
+    database()
+    .ref('/users/123')
+    .set({
+      name: 'Ada Lovelace',
+      age: 31,
+    })
+    .then(() => console.log('Data set.'));
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -45,6 +62,9 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <Button title="Write Random Data" onPress={writeRandomData} />
       </ThemedView>
     </ParallaxScrollView>
   );
