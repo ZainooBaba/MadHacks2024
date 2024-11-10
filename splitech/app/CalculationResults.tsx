@@ -101,9 +101,17 @@ const CalculationResults = ({ route }) => {
       {item[0]} owes {item[1]}: ${item[2].toFixed(2)}
     </Text>
   );
-  const logTransactions = () => {
-    console.log(transactions);
-    console.log(getGuestEmails(groupName));
+  const logTransactions = async () => {
+    // console.log(results);
+    let emails = await getGuestEmails(groupName);
+    // console.log(emails);
+    for (let i = 0; i < emails.length; i++) {
+      let email = emails[i];
+      // console.log(email);
+      let relatedTransactions = results.filter(transaction => transaction[0] === email.Name || transaction[1] === email.Name);
+      console.log(relatedTransactions);
+    }
+
   };
   const getGuestEmails = async (groupName) => {
     try {
@@ -120,7 +128,6 @@ const CalculationResults = ({ route }) => {
 
       const guestEmails = Object.values(guests)
           .filter(guest => guest.Email)
-          .map(guest => guest.Email);
       return guestEmails;
     } catch (error) {
       console.error('Error fetching guest emails:', error);
