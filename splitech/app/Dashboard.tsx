@@ -11,7 +11,7 @@ import { getDatabase, ref, get, set } from 'firebase/database';
 import { encodeEmail } from './utils';
 import * as Linking from 'expo-linking';
 
-
+const URL_HOST = 'exp://192.168.1.188:8081';
 
 
 const data = [
@@ -102,7 +102,7 @@ const dbAdd = async (group) => {
 const Card = ({ title, owner, onPress, onSwipeOpen }) => {
   const renderLeftActions = () => (
     <View style={styles.leftActionContainer}>
-      <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink('www.Example.com')}>
+      <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}?invite?${title}`)}>
         <Link name="link" size={40} color="#fff" />
       </Pressable>
       <Pressable style={[styles.cardButtons, styles.deleteButton]} onPress={() => removeGroup('EXAMPLE_GROUP_ID')}>
@@ -140,9 +140,9 @@ const Dashboard = ({ route, navigation }) => {
         isVirgin = true;
       }
       if(isVirgin && url && url.toString().includes('?')){
-        setGroupInvite(url.toString());
+        setGroupInvite(url.toString().split("?")[1] == 'invite' ? url.toString() : null);
+        await AsyncStorage.setItem('url', url?.toString()? url.toString() : '');
       }
-      await AsyncStorage.setItem('url', url?.toString()? url.toString() : '');
     }
     if (!groupInvite) {
       setUrl();
@@ -235,7 +235,7 @@ const Dashboard = ({ route, navigation }) => {
       <Text style={styles.subHeader}>Your Groups</Text>
       {groupInvite && (
         <View>
-          <Text>Do You Want To Join //InviterName//'s Group {groupInvite}</Text>
+          <Text>Do You Want To Join //InviterName//'s Group {groupInvite?.split('?').pop()}</Text>
           <Button title="Join Group" onPress={() => aceptInvitation()} />
           <Button title="Decline" onPress={() => rejectInvitation(null)} />
         </View>
