@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.title-section {
+  background-color: #f3c179; /* Brighter version of #e8a755 */
+}
+/* Add this to your index.css or global CSS file */
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+.untext {
+  user-select: none;
+}
+h1 {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
