@@ -69,8 +69,8 @@ const Home = ({ navigation }) => {
           const decoded = decodeJWT(idToken);
           if (decoded) {
             setUserInfo(decoded);
-            AsyncStorage.setItem('authToken', idToken);
-            AsyncStorage.setItem('email', decoded.email);
+            await AsyncStorage.setItem('authToken', idToken);
+            await AsyncStorage.setItem('email', decoded.email);
             setLoggedOut(false);
             const db = getDatabase();
             const encodedEmail = encodeEmail(decoded.email);
@@ -115,6 +115,7 @@ const Home = ({ navigation }) => {
         if (decoded) {
           setUserInfo(decoded);
           await AsyncStorage.setItem('authToken', id_token);
+          await AsyncStorage.setItem('email', decoded.email);
           setLoggedOut(false);
           const db = getDatabase();
           const encodedEmail = encodeEmail(decoded.email);
