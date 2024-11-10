@@ -76,7 +76,7 @@ const GroupDetails = ({ route, navigation }) => {
   };
 
   const handleCalculatePress = () => {
-    navigation.navigate('CalculationResults', { transactions });
+    navigation.navigate('CalculationResults', { transactions, groupName });
   };
 
   const handleAddTransaction = () => {

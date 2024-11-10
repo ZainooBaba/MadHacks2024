@@ -1,9 +1,10 @@
 // CalculationResults.js
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList } from 'react-native';
+import { getDatabase, ref, get } from 'firebase/database';
 
 const CalculationResults = ({ route }) => {
-  const { transactions } = route.params;
+  const { transactions, groupName } = route.params;
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState([]);
   const [error, setError] = useState(null);
@@ -11,16 +12,63 @@ const CalculationResults = ({ route }) => {
   useEffect(() => {
     const calculateTransactions = async () => {
       try {
-        const names = Array.from(new Set(transactions.flatMap((t) => t.members)));
-        const edges = transactions.map((t) => [...t.members, t.amount]);
-        console.log(names);
-        console.log(edges);
+        const db = getDatabase();
+        const groupRef = ref(db, `Groups/${groupName}`);
+        const groupSnapshot = await get(groupRef);
+
+        if (!groupSnapshot.exists()) {
+          throw new Error('Group data not found');
+        }
+
+        const groupData = groupSnapshot.val();
+        const ownerEmail = groupData.Owner;
+        const authenticatedUsers = groupData.AuthenticatedUsers || [];
+        
+        // Get guest names directly from the Guests structure
+        const guests = groupData.Guests
+          ? Object.values(groupData.Guests).reduce((acc, guest) => {
+              acc[guest.Email] = guest.Name;
+              return acc;
+            }, {})
+          : {};
+
+        // Fetch authenticated users' names based on emails
+        const emailToNameMap = {};
+        for (const email of [ownerEmail, ...authenticatedUsers]) {
+          const userRef = ref(db, `Users/${email}`);
+          const userSnapshot = await get(userRef);
+          if (userSnapshot.exists()) {
+            emailToNameMap[email] = userSnapshot.val().name || email;
+          }
+        }
+
+        // Merge guest names into the emailToNameMap
+        const nameMap = { ...emailToNameMap, ...guests };
+
+        // Replace emails with names in transactions, using guest names directly if available
+        const transactionsWithNames = transactions.map((transaction) => ({
+          ...transaction,
+          creator: nameMap[transaction.creator] || transaction.creator,
+          members: transaction.members.map((member) => nameMap[member] || member),
+        }));
+
+        // Prepare edges array: [creator (payer), ...members (payees), amount]
+        const edges = transactionsWithNames.map((transaction) => [
+          ...transaction.members,
+          transaction.creator,
+          transaction.amount,
+        ]);
+
+        // Collect unique names for the 'names' array
+        const uniqueNames = Array.from(new Set(Object.values(nameMap)));
+
+        // Send request to the calculation API
         const response = await fetch('https://us-central1-splitech-441301.cloudfunctions.net/splitech', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ names, edges }),
+          body: JSON.stringify({ names: uniqueNames, edges }),
         });
 
         if (!response.ok) {
@@ -28,7 +76,6 @@ const CalculationResults = ({ route }) => {
         }
 
         const data = await response.json();
-        console.log(data);
         setResults(data.transactions || []);
       } catch (err) {
         setError(err.message);
@@ -38,7 +85,7 @@ const CalculationResults = ({ route }) => {
     };
 
     calculateTransactions();
-  }, [transactions]);
+  }, [transactions, groupName]);
 
   if (loading) {
     return <ActivityIndicator style={styles.loader} size="large" color="#2D9CDB" />;
