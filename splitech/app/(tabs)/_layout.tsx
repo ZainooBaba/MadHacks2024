@@ -28,6 +28,12 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="GroupManagement"
+        options={{
+          title: 'Groups',
+        }}
+      />
+      <Tabs.Screen
         name="explore"
         options={{
           title: 'Explore',
