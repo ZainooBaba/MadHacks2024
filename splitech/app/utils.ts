@@ -15,4 +15,6 @@ export function decodeJWT(token: string): any | null {
       return null;
     }
   }
+
+export const encodeEmail = email => email.replace(/[.#$[\]]/g, ',');
   
