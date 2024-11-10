@@ -214,7 +214,7 @@ const Dashboard = ({ route, navigation }) => {
   };
 
   function addGroup() {
-    navigation.replace('CreateGroup');
+    navigation.navigate('CreateGroup');
   }
 
   const rejectInvitation = async (arg0: null) => {

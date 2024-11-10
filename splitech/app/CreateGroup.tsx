@@ -1,8 +1,11 @@
 import React, { useState, useRef } from 'react';
 import { Text, View, TextInput, Button, FlatList, TouchableOpacity, StyleSheet, Keyboard, Pressable } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import {get, getDatabase, push, ref, set} from "firebase/database";
+import {encodeEmail} from "@/app/utils";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function CreateGroup() {
+export default function CreateGroup({navigation}) {
     const [groupName, setGroupName] = useState('New Group');
     const [members, setMembers] = useState([
         { name: 'John Doe', email: 'john@gmail.com' },
@@ -24,6 +27,47 @@ export default function CreateGroup() {
             setMemberName('');
             setMemberEmail('');
         }
+    };
+    const dbAdd = async () => {
+        const db = getDatabase();
+        const guests = {};
+
+        for (const member of members) {
+            const newRef = push(ref(db, 'Groups/Guests'));
+            const guestId = newRef.key;
+            guests[guestId] = {
+                Name: member.name
+            };
+            if (member.email) {
+                guests[guestId].Email = member.email;
+            }
+        }
+
+        const email = await AsyncStorage.getItem('email');
+        if (!email) {
+            console.error('No email found in AsyncStorage');
+            return;
+        }
+
+        const encodedEmail = encodeEmail(email);
+        const userRef = ref(db, `Users/${encodedEmail}/Groups`);
+        const userSnapshot = await get(userRef);
+        let userGroups = [];
+
+        if (userSnapshot.exists()) {
+            userGroups = userSnapshot.val();
+        }
+
+        userGroups.push(groupName);
+
+        await Promise.all([
+            set(userRef, userGroups),
+            set(ref(db, `Groups/${groupName}`), {
+                Owner: encodedEmail,
+                Guests: guests
+            })
+        ]);
+        navigation.replace('Dashboard'); // Replace 'DesiredScreen' with your target screen
     };
 
     const handleSubmit = () => {
@@ -119,7 +163,7 @@ export default function CreateGroup() {
                     )}
                 />
             </View>
-            <Button title="Submit Group" onPress={handleSubmit} />
+            <Button title="Submit Group" onPress={dbAdd} />
         </View>
     );
 }
