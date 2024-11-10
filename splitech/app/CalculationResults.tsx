@@ -102,14 +102,15 @@ const CalculationResults = ({ route }) => {
     </Text>
   );
   const logTransactions = async () => {
-    // console.log(results);
     let emails = await getGuestEmails(groupName);
-    // console.log(emails);
     for (let i = 0; i < emails.length; i++) {
       let email = emails[i];
-      // console.log(email);
       let relatedTransactions = results.filter(transaction => transaction[0] === email.Name || transaction[1] === email.Name);
-      console.log(relatedTransactions);
+      if (relatedTransactions.length === 0) {
+        continue;
+      }
+      //Send email to user
+      
     }
 
   };
