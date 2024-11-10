@@ -1,9 +1,8 @@
-// Home.js
 import React, { useState, useEffect } from 'react';
 import { Alert, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
-import {initializeApp, getApps, getApp} from 'firebase/app';
-import {getDatabase, ref, onValue, set, get} from 'firebase/database';
+import { initializeApp, getApps } from 'firebase/app';
+import { getDatabase, ref, get, set } from 'firebase/database';
 import { firebaseConfig } from '@/firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { encodeEmail } from './utils';
@@ -17,19 +16,12 @@ if (!getApps().length) {
 const AUTH0_DOMAIN = 'dev-2l54u7lu3bidibfm.us.auth0.com';
 const AUTH0_CLIENT_ID = 'UqYXERixdhnqf7XeqK87KHq18ANY3Aqm';
 
-// Redirect URI configuration using AuthSession.makeRedirectUri
-const redirectUri = AuthSession.makeRedirectUri({
-  useProxy: Platform.OS !== 'web',
-});
-
-console.log('Redirect URI:', redirectUri);
-
+const redirectUri = AuthSession.makeRedirectUri({ useProxy: Platform.OS !== 'web' });
 const discovery = {
   authorizationEndpoint: `https://${AUTH0_DOMAIN}/authorize`,
   tokenEndpoint: `https://${AUTH0_DOMAIN}/oauth/token`,
 };
-
-// Helper function to decode JWT
+  
 function decodeJWT(token) {
   try {
     const base64Url = token.split('.')[1];
@@ -88,6 +80,7 @@ const Home = ({ navigation }) => {
             if (snapshot.exists()) {
               const userData = snapshot.val();
               await AsyncStorage.setItem('name', userData.name);
+              await AsyncStorage.setItem('pfpId', userData.pfpId || 'image_part_001.jpg'); // Default to '1' if pfpId is not set
               navigation.replace('Dashboard');
             } else {
               window.history.replaceState(null, '', window.location.pathname);
@@ -131,6 +124,7 @@ const Home = ({ navigation }) => {
           if (snapshot.exists()) {
             const userData = snapshot.val();
             await AsyncStorage.setItem('name', userData.name);
+            await AsyncStorage.setItem('pfpId', userData.pfpId || 'image_part_001.jpg'); // Default to '1' if pfpId is not set
             navigation.replace('Dashboard');
           } else {
             navigation.replace('Name');
@@ -143,6 +137,7 @@ const Home = ({ navigation }) => {
 
     handleResponse();
   }, [response, hasHandledResponse, loggedOut, navigation]);
+
   const onLogin = async () => {
     if (!userInfo) {
       setIsLoading(true);
@@ -156,10 +151,9 @@ const Home = ({ navigation }) => {
             `&response_type=id_token` +
             `&scope=${encodeURIComponent('openid profile email')}` +
             `&nonce=${encodeURIComponent('nonce')}`;
-
           window.location.assign(authUrl);
         } else {
-          const result = await promptAsync({ useProxy: false });
+          await promptAsync({ useProxy: false });
         }
       } catch (error) {
         console.error('Login error', error);
@@ -180,11 +174,9 @@ const Home = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Logo and App Title */}
       <Image source={require('../assets/images/splitech_logo_transparent.png')} style={styles.logo} />
       <Text style={styles.header}>Welcome to Splitech!</Text>
-      {/* <Text style={styles.slogan}>Split Smart, Live Fair</Text> */}
-      
+
       {isLoading && <ActivityIndicator size="large" color="#2D9CDB" />}
       {userInfo ? (
         <>
@@ -196,7 +188,6 @@ const Home = ({ navigation }) => {
         </>
       ) : (
         <>
-          {/* <Text style={styles.message}>You are not logged in</Text> */}
           <TouchableOpacity
             style={styles.button}
             onPress={onLogin}
@@ -217,12 +208,12 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#FFFFFF', // Set background to white
+    backgroundColor: '#FFFFFF',
     padding: 20,
   },
   logo: {
-    width: 350, // Adjust width if needed
-    height: 350, // Adjust height if needed
+    width: 350,
+    height: 350,
     resizeMode: 'contain',
     marginBottom: 20,
     marginTop: -50,
@@ -230,20 +221,9 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#F4A442', // Matches the logo color
+    color: '#F4A442',
     marginBottom: 10,
     marginTop: 120,
-  },
-  slogan: {
-    fontSize: 16,
-    color: '#F4A442', // Matches the logo color
-    marginBottom: 30,
-  },
-  message: {
-    fontSize: 18,
-    color: '#666',
-    marginBottom: 20,
-    textAlign: 'center',
   },
   userText: {
     fontSize: 20,
