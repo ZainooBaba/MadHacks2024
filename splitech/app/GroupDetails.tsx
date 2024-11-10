@@ -94,7 +94,7 @@ const GroupDetails = ({ route, navigation }) => {
           <Text style={styles.transactionCreator}>Created by: {item.creator}</Text>
         </View>
       </View>
-      <Text style={styles.transactionAmount}>${item.amount.toFixed(2)}</Text>
+      <Text style={styles.transactionAmount}>${item.amount ? item.amount.toFixed(2) : '0.00'}</Text>
     </TouchableOpacity>
   );
 
