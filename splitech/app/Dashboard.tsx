@@ -246,6 +246,39 @@ const Dashboard = ({route, navigation}) => {
         setGroupInvite(null);
         await AsyncStorage.setItem('virginLink', "false");
 
+        const db = getDatabase();
+        const groupRef = ref(db, `Groups/${groupId}`);
+        const email = await AsyncStorage.getItem('email');
+
+        if (!email) {
+            console.error('No email found in AsyncStorage');
+            return;
+        }
+
+        const encodedEmail = encodeEmail(email);
+        const userGroupsRef = ref(db, `Users/${encodedEmail}/Groups`);
+        const userGroupsSnapshot = await get(userGroupsRef);
+
+        let userGroups = [];
+        if (userGroupsSnapshot.exists()) {
+            userGroups = userGroupsSnapshot.val();
+        }
+
+        userGroups.push(groupId);
+
+        await set(userGroupsRef, userGroups);
+
+        const authenticatedUsersRef = ref(db, `Groups/${groupId}/AuthenticatedUsers`);
+        const authenticatedUsersSnapshot = await get(authenticatedUsersRef);
+
+        let authenticatedUsers = [];
+        if (authenticatedUsersSnapshot.exists()) {
+            authenticatedUsers = authenticatedUsersSnapshot.val();
+        }
+
+        authenticatedUsers.push(encodedEmail);
+
+        await set(authenticatedUsersRef, authenticatedUsers);
         //TODO IMPLEMENT ACCEPT INVITATION
     }
 
@@ -418,7 +451,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: 'center',
     fontWeight: '600',
-    marginBottom: 30,
   },
   invitationButtons: {
     flexDirection: 'row',
