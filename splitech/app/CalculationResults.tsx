@@ -55,8 +55,8 @@ const CalculationResults = ({ route }) => {
 
         // Prepare edges array: [creator (payer), ...members (payees), amount]
         const edges = transactionsWithNames.map((transaction) => [
-          ...transaction.members,
           transaction.creator,
+          ...transaction.members,
           transaction.amount,
         ]);
 
@@ -98,7 +98,7 @@ const CalculationResults = ({ route }) => {
 
   const renderTransaction = ({ item }) => (
     <Text style={styles.resultText}>
-      {item[0]} owes {item[1]}: ${item[2].toFixed(2)}
+      {item[1]} owes {item[0]}: ${item[2].toFixed(2)}
     </Text>
   );
 
