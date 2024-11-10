@@ -70,7 +70,7 @@ const loadUserGroups = async () => {
 const Dashboard = ({route, navigation}) => {
 
 
-  const [groups, setGroups] = useState([]);
+  const [groups, setGroups] = useState<{ title: string; owner: boolean }[]>([]);
 
 // Group management functions
     function shareLink(url) {
@@ -278,6 +278,8 @@ const Dashboard = ({route, navigation}) => {
         authenticatedUsers.push(encodedEmail);
 
         await set(authenticatedUsersRef, authenticatedUsers);
+        setGroups(prevGroups => [...prevGroups, { title: groupId, owner: false }]);
+        // alert(groups.length);
         //TODO IMPLEMENT ACCEPT INVITATION
     }
 
