@@ -139,10 +139,10 @@ const Dashboard = ({ route, navigation }) => {
       else if (currentUrl && url && currentUrl !== url) {
         isVirgin = true;
       }
-      if(isVirgin && url.toString().includes('?')){
+      if(isVirgin && url && url.toString().includes('?')){
         setGroupInvite(url.toString());
       }
-      await AsyncStorage.setItem('url', url.toString());
+      await AsyncStorage.setItem('url', url?.toString()? url.toString() : '');
     }
     if (!groupInvite) {
       setUrl();
