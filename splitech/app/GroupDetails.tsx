@@ -1,16 +1,75 @@
 // GroupDetails.js
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import { getDatabase, ref, onValue } from 'firebase/database';
 
-const transactions = [
-  { id: '1', title: 'Groceries', amount: 25.50, members: ['Alice', 'Bob'], description: 'Weekly groceries', creator: 'Alice' },
-  { id: '2', title: 'Gas', amount: 100.00, members: ['Alice', 'Charlie'], description: 'Road trip fuel', creator: 'Charlie' },
-  { id: '3', title: 'Dinner', amount: 75.25, members: ['Bob', 'Charlie', 'Alice'], description: 'Dinner at a restaurant', creator: 'Bob' },
-];
+// Sample profile pictures mapped by filename
+const profilePictures = {
+  "image_part_001.jpg": require('../assets/icons/image_part_001.jpg'),
+  "image_part_002.jpg": require('../assets/icons/image_part_002.jpg'),
+  "image_part_003.jpg": require('../assets/icons/image_part_003.jpg'),
+  "image_part_004.jpg": require('../assets/icons/image_part_004.jpg'),
+  "image_part_005.jpg": require('../assets/icons/image_part_005.jpg'),
+  "image_part_006.jpg": require('../assets/icons/image_part_006.jpg'),
+  "image_part_007.jpg": require('../assets/icons/image_part_007.jpg'),
+  "image_part_008.jpg": require('../assets/icons/image_part_008.jpg'),
+  "image_part_009.jpg": require('../assets/icons/image_part_009.jpg'),
+};
 
 const GroupDetails = ({ route, navigation }) => {
   const { groupName } = route.params;
+  const [transactions, setTransactions] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [profilePicturesByUser, setProfilePicturesByUser] = useState({});
+
+  useEffect(() => {
+    const db = getDatabase();
+    const groupRef = ref(db, `Groups/${groupName}`);
+
+    const fetchGroupData = () => {
+      onValue(groupRef, (snapshot) => {
+        const groupData = snapshot.val();
+        if (groupData) {
+          const authenticatedUsers = groupData.AuthenticatedUsers || [];
+          const guests = groupData.Guests ? Object.values(groupData.Guests).map((guest) => guest.Name) : [];
+          setMembers([...authenticatedUsers, ...guests]);
+        }
+      });
+    };
+
+    const fetchTransactions = () => {
+      const transactionsRef = ref(db, `Groups/${groupName}/Requests`);
+      onValue(transactionsRef, (snapshot) => {
+        const transactionsData = snapshot.val();
+        if (transactionsData) {
+          const loadedTransactions = Object.entries(transactionsData).map(([id, transaction]) => ({
+            id,
+            ...transaction,
+          }));
+          setTransactions(loadedTransactions);
+        }
+      });
+    };
+
+    const fetchProfilePictures = () => {
+      const usersRef = ref(db, 'Users');
+      onValue(usersRef, (snapshot) => {
+        const usersData = snapshot.val();
+        const picturesMap = {};
+        Object.values(usersData).forEach((user) => {
+          if (user.name && user.profilePicture) {
+            picturesMap[user.name] = profilePictures[user.profilePicture];
+          }
+        });
+        setProfilePicturesByUser(picturesMap);
+      });
+    };
+
+    fetchGroupData();
+    fetchTransactions();
+    fetchProfilePictures();
+  }, [groupName]);
 
   const handleTransactionPress = (transaction) => {
     navigation.navigate('TransactionDetails', { transaction });
@@ -20,11 +79,20 @@ const GroupDetails = ({ route, navigation }) => {
     navigation.navigate('CalculationResults', { transactions });
   };
 
+  const handleAddTransaction = () => {
+    navigation.navigate('AddTransaction', { groupName, members });
+  };
+
   const renderTransaction = ({ item }) => (
     <TouchableOpacity onPress={() => handleTransactionPress(item)} style={styles.transactionCard}>
       <View style={styles.transactionHeader}>
         <Text style={styles.transactionTitle}>{item.title}</Text>
-        <Text style={styles.transactionCreator}>Created by: {item.creator}</Text>
+        <View style={styles.creatorContainer}>
+          {profilePicturesByUser[item.creator] && (
+            <Image source={profilePicturesByUser[item.creator]} style={styles.creatorPfp} />
+          )}
+          <Text style={styles.transactionCreator}>Created by: {item.creator}</Text>
+        </View>
       </View>
       <Text style={styles.transactionAmount}>${item.amount.toFixed(2)}</Text>
     </TouchableOpacity>
@@ -42,7 +110,7 @@ const GroupDetails = ({ route, navigation }) => {
       <TouchableOpacity style={styles.calculateButton} onPress={handleCalculatePress}>
         <Text style={styles.calculateButtonText}>Calculate</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={styles.fab} onPress={() => console.log('Add transaction')}>
+      <TouchableOpacity style={styles.fab} onPress={handleAddTransaction}>
         <AntDesign name="plus" size={24} color="#fff" />
       </TouchableOpacity>
     </View>
@@ -82,10 +150,19 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#111827',
   },
+  creatorContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  creatorPfp: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 10,
+  },
   transactionCreator: {
     fontSize: 14,
     color: '#555',
-    marginTop: 4,
   },
   transactionAmount: {
     position: 'absolute',
