@@ -1,6 +1,6 @@
 // Dashboard.js
 import React, {useEffect, useState} from 'react';
-import { StyleSheet, Text, View, FlatList, Pressable, TouchableOpacity, Alert } from 'react-native';
+import { StyleSheet, Text, View, FlatList, Pressable, TouchableOpacity, Alert, Button } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 import Link from 'react-native-vector-icons/AntDesign';
@@ -9,6 +9,9 @@ import { Swipeable } from 'react-native-gesture-handler';
 import { Share } from 'react-native';
 import { getDatabase, ref, get, set } from 'firebase/database';
 import { encodeEmail } from './utils';
+import * as Linking from 'expo-linking';
+
+
 
 
 const data = [
@@ -17,6 +20,7 @@ const data = [
   {id: 3, title: 'Card 3', owner: true },
   {id: 4, title: 'Card 4', owner: false },
 ];
+
 
 
 const loadUserGroups = async () => {
@@ -121,6 +125,31 @@ const Card = ({ title, owner, onPress, onSwipeOpen }) => {
 const Dashboard = ({ route, navigation }) => {
   const [groups, setGroups] = useState([]);
 
+  const [groupInvite, setGroupInvite] = useState<string | null>(null);
+
+
+  const url = Linking.useURL();
+  useEffect(() => {
+    const setUrl = async () => {
+      let isVirgin = false;
+      const currentUrl = await AsyncStorage.getItem('url');
+      if (!currentUrl && url) {
+          isVirgin = true;
+      }
+      else if (currentUrl && url && currentUrl !== url) {
+        isVirgin = true;
+      }
+      if(isVirgin && url.toString().includes('?')){
+        setGroupInvite(url.toString());
+      }
+      await AsyncStorage.setItem('url', url.toString());
+    }
+    if (!groupInvite) {
+      setUrl();
+    }
+  }, [url]);
+  
+
   useEffect(() => {
     const fetchGroups = async () => {
       try {
@@ -188,9 +217,29 @@ const Dashboard = ({ route, navigation }) => {
     navigation.replace('CreateGroup');
   }
 
+  const rejectInvitation = async (arg0: null) => {
+    setGroupInvite(null);
+    await AsyncStorage.setItem('virginLink', "false");
+  };
+  const aceptInvitation = async() => {
+    const groupId = groupInvite?.split('?').pop();
+    alert(`Accepted invitation to group ${groupId}`);
+    setGroupInvite(null);
+    await AsyncStorage.setItem('virginLink', "false");
+
+    //TODO IMPLEMENT ACCEPT INVITATION
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.subHeader}>Your Groups</Text>
+      {groupInvite && (
+        <View>
+          <Text>Do You Want To Join //InviterName//'s Group {groupInvite}</Text>
+          <Button title="Join Group" onPress={() => aceptInvitation()} />
+          <Button title="Decline" onPress={() => rejectInvitation(null)} />
+        </View>
+      )}
       <FlatList
         data={groups}
         keyExtractor={(item, index) => index.toString()}
