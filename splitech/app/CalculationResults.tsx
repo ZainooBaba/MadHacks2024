@@ -1,8 +1,8 @@
 // CalculationResults.js
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ActivityIndicator, FlatList } from 'react-native';
-import { getDatabase, ref, get } from 'firebase/database';
-import { encodeEmail } from './utils';
+import React, {useEffect, useState} from 'react';
+import {ActivityIndicator, Button, FlatList, StyleSheet, Text, View} from 'react-native';
+import {get, getDatabase, ref} from 'firebase/database';
+import {encodeEmail} from './utils';
 
 const CalculationResults = ({ route }) => {
   const { transactions, groupName } = route.params;
@@ -101,7 +101,32 @@ const CalculationResults = ({ route }) => {
       {item[0]} owes {item[1]}: ${item[2].toFixed(2)}
     </Text>
   );
+  const logTransactions = () => {
+    console.log(transactions);
+    console.log(getGuestEmails(groupName));
+  };
+  const getGuestEmails = async (groupName) => {
+    try {
+      const db = getDatabase();
+      const groupRef = ref(db, `Groups/${groupName}`);
+      const groupSnapshot = await get(groupRef);
 
+      if (!groupSnapshot.exists()) {
+        throw new Error('Group data not found');
+      }
+
+      const groupData = groupSnapshot.val();
+      const guests = groupData.Guests || {};
+
+      const guestEmails = Object.values(guests)
+          .filter(guest => guest.Email)
+          .map(guest => guest.Email);
+      return guestEmails;
+    } catch (error) {
+      console.error('Error fetching guest emails:', error);
+      return [];
+    }
+  };
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Calculation Results</Text>
@@ -111,6 +136,7 @@ const CalculationResults = ({ route }) => {
         renderItem={renderTransaction}
         contentContainerStyle={styles.resultsContainer}
       />
+      <Button title="Log Transactions" onPress={logTransactions} />
     </View>
   );
 };
