@@ -23,20 +23,19 @@ const Name = ({ navigation }) => {
     }, []);
 
     const saveName = async () => {
-        const db = getDatabase();
-        const encodedEmail = encodeEmail(email);
-        const userRef = ref(db, `Users/${encodedEmail}`);
-        const snapshot = await get(userRef);
-
-        if (!snapshot.exists()) {
-            await set(userRef, { name });
-        }
-
-        await AsyncStorage.setItem('name', name).then(() => {
-            if (name){
-                navigation.replace('Dashboard', {});
+        if (name) {
+            const db = getDatabase();
+            const encodedEmail = encodeEmail(email);
+            const userRef = ref(db, `Users/${encodedEmail}`);
+            const snapshot = await get(userRef);
+            if (!snapshot.exists()) {
+                await set(userRef, {name});
             }
-        });
+
+            await AsyncStorage.setItem('name', name).then(() => {
+                navigation.replace('Dashboard', {});
+            });
+        }
     };
 
     return (

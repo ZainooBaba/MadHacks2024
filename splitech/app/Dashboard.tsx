@@ -16,6 +16,8 @@ import Link from 'react-native-vector-icons/AntDesign';
 import Remove from 'react-native-vector-icons/FontAwesome';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Share } from 'react-native';
+import { getDatabase, ref, get, set } from 'firebase/database';
+
 
 // Sample data
 const data = [
@@ -32,6 +34,10 @@ function shareLink(url) {
     message: `Check out this link: ${url}`,
   }).catch((error) => console.log('Error sharing link:', error));
 }
+
+const encodeEmail = (email) => {
+  return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
+};
 
 function removeGroup(groupId) {
   Alert.alert(
@@ -53,7 +59,27 @@ function removeGroup(groupId) {
 }
 
 function addGroup() {
-  alert('Add Group');
+  dbAdd("Group1");
+}
+const dbAdd = async (group) => {
+  const db = getDatabase();
+  set(ref(db, `Groups/${group}`), {
+    Owner: encodeEmail(await AsyncStorage.getItem('email')),
+    AuthenticatedUsers: ["Email 1", "Email 2", "Email 3"],
+    Guests: {
+      1828283892: {
+        Name: "Guest 1",
+        Email: "blah@gmail.com"
+      },
+      9329849904: {
+        Name: "Guest 2",
+      },
+      8924857428: {
+        Name: "Guest 3",
+        Email: "blah2@outlook.com"
+      }
+    }
+  }).then(r => console.log('Data set.'));
 }
 
 // Card Component
