@@ -128,26 +128,26 @@ const Dashboard = ({ route, navigation }) => {
   const [groupInvite, setGroupInvite] = useState<string | null>(null);
 
 
-  const url = Linking.useURL();
-  useEffect(() => {
-    const setUrl = async () => {
-      let isVirgin = false;
-      const currentUrl = await AsyncStorage.getItem('url');
-      if (!currentUrl && url) {
-          isVirgin = true;
-      }
-      else if (currentUrl && url && currentUrl !== url) {
-        isVirgin = true;
-      }
-      if(isVirgin && url.toString().includes('?')){
-        setGroupInvite(url.toString());
-      }
-      await AsyncStorage.setItem('url', url.toString());
-    }
-    if (!groupInvite) {
-      setUrl();
-    }
-  }, [url]);
+//   const url = Linking.useURL();
+//   useEffect(() => {
+//     const setUrl = async () => {
+//       let isVirgin = false;
+//       const currentUrl = await AsyncStorage.getItem('url');
+//       if (!currentUrl && url) {
+//           isVirgin = true;
+//       }
+//       else if (currentUrl && url && currentUrl !== url) {
+//         isVirgin = true;
+//       }
+//       if(isVirgin && url.toString().includes('?')){
+//         setGroupInvite(url.toString());
+//       }
+//       await AsyncStorage.setItem('url', url.toString());
+//     }
+//     if (!url || !groupInvite) {
+//       setUrl();
+//     }
+//   }, [url]);
   
 
   useEffect(() => {
