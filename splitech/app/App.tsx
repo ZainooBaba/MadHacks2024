@@ -7,6 +7,7 @@ import Dashboard from './Dashboard';
 import GroupDetails from './GroupDetails';
 import TransactionDetails from './TransactionDetails';
 import CalculationResults from './CalculationResults';
+import CreateGroup from './CreateGroup';
 
 const Stack = createNativeStackNavigator();
 
@@ -27,6 +28,16 @@ const App = () => {
                 component={Dashboard} 
                 options={{ 
                 title: 'Dashboard',
+                headerStyle: { backgroundColor: '#F4A442' },
+                headerTintColor: '#fff',
+                headerTitleStyle: { fontWeight: 'bold' },
+                }} 
+            />
+            <Stack.Screen 
+                name="CreateGroup" 
+                component={CreateGroup} 
+                options={{ 
+                title: 'Create Group',
                 headerStyle: { backgroundColor: '#F4A442' },
                 headerTintColor: '#fff',
                 headerTitleStyle: { fontWeight: 'bold' },

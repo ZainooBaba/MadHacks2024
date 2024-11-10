@@ -73,7 +73,7 @@ export default function CreateGroup() {
                             <Text style={styles.addEmail2}>Add Email</Text>
                         </Pressable>
                     )}
-                    <Pressable>
+                    <Pressable onPress={() => setMembers(members.filter(member => member.name !== name))}>
                         <Icon name="trash" size={20} color="red" />
                     </Pressable>
                 </View>
