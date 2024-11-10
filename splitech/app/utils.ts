@@ -16,3 +16,10 @@ export function decodeJWT(token: string): any | null {
     }
   }
   
+export function encodeEmail(email: string){
+  return email.replaceAll('.', ',').replaceAll('#', ',').replaceAll('$', ',').replaceAll('[', ',').replaceAll(']', ',');
+}
+
+export function decodeEmail(email: string){
+  return email.replaceAll(',', '.')
+}

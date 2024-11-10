@@ -8,6 +8,7 @@ import Remove from 'react-native-vector-icons/FontAwesome';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Share } from 'react-native';
 import { getDatabase, ref, get, set } from 'firebase/database';
+import { encodeEmail } from './utils';
 
 
 const data = [
@@ -52,9 +53,7 @@ function shareLink(url) {
   }).catch((error) => console.log('Error sharing link:', error));
 }
 
-const encodeEmail = (email) => {
-  return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
-};
+
 
 function removeGroup(groupId) {
   Alert.alert(

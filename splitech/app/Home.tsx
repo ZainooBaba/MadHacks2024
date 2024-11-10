@@ -6,6 +6,7 @@ import {initializeApp, getApps, getApp} from 'firebase/app';
 import {getDatabase, ref, onValue, set, get} from 'firebase/database';
 import { firebaseConfig } from '@/firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { encodeEmail } from './utils';
 
 
 if (!getApps().length) {
@@ -46,9 +47,6 @@ function decodeJWT(token) {
   }
 }
 
-const encodeEmail = (email) => {
-  return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
-};
 
 const Home = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
