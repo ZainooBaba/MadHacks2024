@@ -124,7 +124,7 @@ const Dashboard = ({route, navigation}) => {
     const Card = ({title, owner, onPress, onSwipeOpen}) => {
         const renderLeftActions = () => (
             <View style={styles.leftActionContainer}>
-                <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}?invite?${title.replaceAll(" ","?")}`)}>
+                <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}/${title.replaceAll(" ","%20")}`)}>
                   <Link name="link" size={40} color="#fff"/>
                 </Pressable>
                 {owner && (
