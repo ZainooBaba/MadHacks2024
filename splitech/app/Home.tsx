@@ -1,6 +1,6 @@
 // Home.js
 import React, { useState, useEffect } from 'react';
-import { Alert, StyleSheet, Text, View, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
+import { Alert, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -10,8 +10,7 @@ const AUTH0_CLIENT_ID = 'UqYXERixdhnqf7XeqK87KHq18ANY3Aqm';
 
 // Redirect URI configuration using AuthSession.makeRedirectUri
 const redirectUri = AuthSession.makeRedirectUri({
-  useProxy: Platform.OS !== 'web', // Use proxy on native platforms
-  // Optionally, specify a custom scheme for native platforms
+  useProxy: Platform.OS !== 'web',
 });
 
 console.log('Redirect URI:', redirectUri);
@@ -39,7 +38,7 @@ function decodeJWT(token) {
   }
 }
 
-const Home = ({ navigation }) => { // Receive navigation prop
+const Home = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasHandledResponse, setHasHandledResponse] = useState(false);
@@ -52,13 +51,12 @@ const Home = ({ navigation }) => { // Receive navigation prop
       scopes: ['openid', 'profile', 'email'],
       responseType: AuthSession.ResponseType.IdToken,
       extraParams: {
-        nonce: 'nonce', // Consider generating a unique nonce for each request
+        nonce: 'nonce',
       },
     },
     discovery
   );
 
-  // Detect and handle web id_token in URL hash
   useEffect(() => {
     if (Platform.OS === 'web') {
       const handleAuth = () => {
@@ -72,8 +70,8 @@ const Home = ({ navigation }) => { // Receive navigation prop
             AsyncStorage.setItem('authToken', idToken);
             setLoggedOut(false);
             Alert.alert('Logged in!', `Welcome ${decoded.name}`);
-            window.history.replaceState(null, '', window.location.pathname); // Clear the hash from the URL
-            navigation.replace('Dashboard', { user: decoded }); // Navigate to Dashboard
+            window.history.replaceState(null, '', window.location.pathname);
+            navigation.replace('Dashboard', { user: decoded });
           }
         }
       };
@@ -92,7 +90,7 @@ const Home = ({ navigation }) => { // Receive navigation prop
         AsyncStorage.setItem('authToken', id_token);
         setLoggedOut(false);
         Alert.alert('Logged in!', `Welcome ${decoded.name}`);
-        navigation.replace('Dashboard', { user: decoded }); // Navigate to Dashboard
+        navigation.replace('Dashboard', { user: decoded });
       }
     } else if (response?.type === 'error') {
       Alert.alert('Authentication error', response.error?.message || 'An error occurred');
@@ -106,7 +104,6 @@ const Home = ({ navigation }) => { // Receive navigation prop
         setHasHandledResponse(false);
         setLoggedOut(false);
         if (Platform.OS === 'web') {
-          // Construct the authorization URL manually for web
           const authUrl = `${discovery.authorizationEndpoint}?` +
             `client_id=${encodeURIComponent(AUTH0_CLIENT_ID)}` +
             `&redirect_uri=${encodeURIComponent(redirectUri)}` +
@@ -114,12 +111,9 @@ const Home = ({ navigation }) => { // Receive navigation prop
             `&scope=${encodeURIComponent('openid profile email')}` +
             `&nonce=${encodeURIComponent('nonce')}`;
 
-          // Redirect the current window to the Auth0 login page
           window.location.assign(authUrl);
         } else {
-          // For native platforms, use promptAsync to open the auth session
           const result = await promptAsync({ useProxy: false });
-          // Navigation is handled in useEffect after response
         }
       } catch (error) {
         console.error('Login error', error);
@@ -140,7 +134,11 @@ const Home = ({ navigation }) => { // Receive navigation prop
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Auth0 Login</Text>
+      {/* Logo and App Title */}
+      <Image source={require('../assets/images/splitech_logo_transparent.png')} style={styles.logo} />
+      <Text style={styles.header}>Welcome to Splitech!</Text>
+      {/* <Text style={styles.slogan}>Split Smart, Live Fair</Text> */}
+      
       {isLoading && <ActivityIndicator size="large" color="#2D9CDB" />}
       {userInfo ? (
         <>
@@ -152,7 +150,7 @@ const Home = ({ navigation }) => { // Receive navigation prop
         </>
       ) : (
         <>
-          <Text style={styles.message}>You are not logged in</Text>
+          {/* <Text style={styles.message}>You are not logged in</Text> */}
           <TouchableOpacity
             style={styles.button}
             onPress={onLogin}
@@ -173,14 +171,27 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F3F4F6',
+    backgroundColor: '#FFFFFF', // Set background to white
     padding: 20,
+  },
+  logo: {
+    width: 350, // Adjust width if needed
+    height: 350, // Adjust height if needed
+    resizeMode: 'contain',
+    marginBottom: 20,
+    marginTop: -50,
   },
   header: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
+    color: '#F4A442', // Matches the logo color
+    marginBottom: 10,
+    marginTop: 120,
+  },
+  slogan: {
+    fontSize: 16,
+    color: '#F4A442', // Matches the logo color
+    marginBottom: 30,
   },
   message: {
     fontSize: 18,
@@ -194,10 +205,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#2D9CDB',
+    backgroundColor: '#f4c542',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,
+    width: 300,
     alignItems: 'center',
     marginTop: 20,
   },

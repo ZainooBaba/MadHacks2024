@@ -32,7 +32,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     padding: 20,
-    backgroundColor: '#E5E7EB',
+    backgroundColor: '#FFFFFF',
     justifyContent: 'center',
   },
   header: {
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   button: {
-    backgroundColor: '#2D9CDB',
+    backgroundColor: '#F4A442',
     paddingVertical: 12,
     paddingHorizontal: 30,
     borderRadius: 8,

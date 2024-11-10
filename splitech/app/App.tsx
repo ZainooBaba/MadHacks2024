@@ -22,7 +22,7 @@ const App = () => {
         component={Dashboard} 
         options={{ 
           title: 'Dashboard',
-          headerStyle: { backgroundColor: '#2D9CDB' },
+          headerStyle: { backgroundColor: '#F4A442' },
           headerTintColor: '#fff',
           headerTitleStyle: { fontWeight: 'bold' },
         }} 
