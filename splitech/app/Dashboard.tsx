@@ -129,27 +129,44 @@ const Dashboard = ({ route, navigation }) => {
           console.error('No email found in AsyncStorage');
           return;
         }
-
         const encodedEmail = encodeEmail(email);
         const db = getDatabase();
         const groupsRef = ref(db, 'Groups');
+        const usersRef = ref(db, `Users/${encodedEmail}`);
         const snapshot = await get(groupsRef);
-
-        if (snapshot.exists()) {
-          const groupsData = snapshot.val();
-          let groupData = [];
-
-          for (const groupId in groupsData) {
-            const group = groupsData[groupId];
-            const isOwner = group.Owner === encodedEmail;
-            groupData.push({ title: groupId, owner: isOwner });
+        const usersSnapshot = await get(usersRef);
+        console.log(usersSnapshot.val())
+        if (usersSnapshot.exists()) {
+          for (const group in usersSnapshot.val().Groups) {
+            if (snapshot.exists()){
+                const groupsData = snapshot.val();
+                let groupData = [];
+                for (const groupId in groupsData) {
+                    const group = groupsData[groupId];
+                    const isOwner = group.Owner === encodedEmail;
+                    groupData.push({ title: groupId, owner: isOwner });
+                }
+                setGroups(groupData);
+                console.log(groups);
+            }
           }
-
-          setGroups(groupData);
-          console.log(groups);
-        } else {
-          console.error('No groups found in database');
         }
+        //
+        // if (snapshot.exists()) {
+        //   const groupsData = snapshot.val();
+        //   let groupData = [];
+        //
+        //   for (const groupId in groupsData) {
+        //     const group = groupsData[groupId];
+        //     const isOwner = group.Owner === encodedEmail;
+        //     groupData.push({ title: groupId, owner: isOwner });
+        //   }
+        //
+        //   setGroups(groupData);
+        //   console.log(groups);
+        // } else {
+        //   console.error('No groups found in database');
+        // }
       } catch (error) {
         console.error('Error loading groups:', error);
       }
