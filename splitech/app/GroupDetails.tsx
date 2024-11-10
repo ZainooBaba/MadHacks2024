@@ -1,16 +1,43 @@
-// GroupDetails.js
-import React from 'react';
-import { StyleSheet, Text, View, FlatList, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, View, FlatList, TouchableOpacity, Alert } from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-
-const transactions = [
-  { id: '1', title: 'Groceries', amount: 25.50, members: ['Alice', 'Bob'], description: 'Weekly groceries', creator: 'Alice' },
-  { id: '2', title: 'Gas', amount: 100.00, members: ['Alice', 'Charlie'], description: 'Road trip fuel', creator: 'Charlie' },
-  { id: '3', title: 'Dinner', amount: 75.25, members: ['Bob', 'Charlie', 'Alice'], description: 'Dinner at a restaurant', creator: 'Bob' },
-];
+import { getDatabase, ref, onValue } from 'firebase/database';
 
 const GroupDetails = ({ route, navigation }) => {
   const { groupName } = route.params;
+  const [transactions, setTransactions] = useState([]);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const db = getDatabase();
+        const transactionsRef = ref(db, `Groups/${groupName}/Requests`);
+
+        // Listen for real-time updates on transactions
+        onValue(transactionsRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            // Transform Firebase data into array of transactions
+            const loadedTransactions = Object.keys(data).map((key) => ({
+              id: key,
+              title: `Transaction ${key}`, // Customize title based on your requirements
+              amount: data[key].Amount,
+              members: data[key].Members || [],
+              creator: data[key].Owner || 'Unknown',
+            }));
+            setTransactions(loadedTransactions);
+          } else {
+            setTransactions([]);
+          }
+        });
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+        Alert.alert("Error", "Failed to load transactions. Please try again.");
+      }
+    };
+
+    fetchTransactions();
+  }, [groupName]);
 
   const handleTransactionPress = (transaction) => {
     navigation.navigate('TransactionDetails', { transaction });
