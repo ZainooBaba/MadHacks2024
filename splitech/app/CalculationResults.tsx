@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, ActivityIndicator, FlatList } from 'react-native';
 import { getDatabase, ref, get } from 'firebase/database';
+import { encodeEmail } from './utils';
 
 const CalculationResults = ({ route }) => {
   const { transactions, groupName } = route.params;
@@ -35,7 +36,7 @@ const CalculationResults = ({ route }) => {
         // Fetch authenticated users' names based on emails
         const emailToNameMap = {};
         for (const email of [ownerEmail, ...authenticatedUsers]) {
-          const userRef = ref(db, `Users/${email}`);
+          const userRef = ref(db, `Users/${encodeEmail(email)}`);
           const userSnapshot = await get(userRef);
           if (userSnapshot.exists()) {
             emailToNameMap[email] = userSnapshot.val().name || email;

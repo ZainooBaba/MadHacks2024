@@ -1,20 +1,52 @@
-// TransactionDetails.js
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, FlatList } from 'react-native';
+import { getNameByEmail } from './utils';
 
 const TransactionDetails = ({ route }) => {
   const { transaction } = route.params;
+  const [resolvedMembers, setResolvedMembers] = useState([]);
+  const [resolvedCreator, setResolvedCreator] = useState(transaction.creator);
+
+  // Fetch names for all members and the creator
+  useEffect(() => {
+    const fetchMemberNames = async () => {
+      const membersWithNames = await Promise.all(
+        transaction.members.map(async (member) => {
+          if (member.includes('@')) {
+            const name = await getNameByEmail(member);
+            return name || member; // Fallback to email if no name found
+          }
+          return member;
+        })
+      );
+      setResolvedMembers(membersWithNames);
+    };
+
+    const fetchCreatorName = async () => {
+      if (transaction.creator.includes('@')) {
+        const creatorName = await getNameByEmail(transaction.creator);
+        setResolvedCreator(creatorName || transaction.creator); // Fallback to email if no name found
+      }
+    };
+
+    fetchMemberNames();
+    fetchCreatorName();
+  }, [transaction.members, transaction.creator]);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{transaction.title}</Text>
-      <Text style={styles.amount}>Amount: <Text style={styles.amountValue}>${transaction.amount.toFixed(2)}</Text></Text>
-      <Text style={styles.amount}>Created by: <Text style={styles.amountValue}>{transaction.creator}</Text></Text>
+      <Text style={styles.amount}>
+        Amount: <Text style={styles.amountValue}>${transaction.amount.toFixed(2)}</Text>
+      </Text>
+      <Text style={styles.amount}>
+        Created by: <Text style={styles.amountValue}>{resolvedCreator}</Text>
+      </Text>
       <Text style={styles.descriptionTitle}>Description</Text>
       <Text style={styles.description}>{transaction.description}</Text>
       <Text style={styles.membersTitle}>Members Involved</Text>
       <FlatList
-        data={transaction.members}
+        data={resolvedMembers}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => <Text style={styles.member}>{item}</Text>}
         contentContainerStyle={styles.membersList}
@@ -34,7 +66,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28,
     fontWeight: 'bold',
-    color: '#2D9CDB', // Blue color for the title to match the color scheme
+    color: '#2D9CDB',
     marginBottom: 15,
     textAlign: 'center',
   },
@@ -46,13 +78,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   amountValue: {
-    color: '#F4A442', // Gold color for the amount to emphasize
+    color: '#F4A442',
     fontWeight: 'bold',
   },
   descriptionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#2D9CDB', // Blue color for subtitle headers
+    color: '#2D9CDB',
     marginTop: 20,
     marginBottom: 8,
   },
