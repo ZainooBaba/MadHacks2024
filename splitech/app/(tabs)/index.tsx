@@ -1,22 +1,23 @@
 import { Image, StyleSheet, Button, Platform } from 'react-native';
-import database from '@react-native-firebase/database';
-import firebase from '@react-native-firebase/app';
+import {initializeApp, getApps, getApp} from 'firebase/app';
+import {getDatabase, ref, onValue, set} from 'firebase/database';
 import { firebaseConfig } from '../../firebaseConfig';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
-if (!firebase.apps.length) {
-  firebase.initializeApp(firebaseConfig);
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
 }
 
 export default function HomeScreen() {
 
   const writeRandomData = () => {
-    database()
-    .ref('/users/123')
-    .set({
+    const app = getApp()
+    const database = getDatabase(app);
+    const dbRef = ref(database, `users/123`);
+    set(dbRef,{
       name: 'Ada Lovelace',
       age: 31,
     })
