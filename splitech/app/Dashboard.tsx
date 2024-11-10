@@ -1,5 +1,5 @@
 // Dashboard.js
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { StyleSheet, Text, View, FlatList, Pressable, TouchableOpacity, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome6';
@@ -7,14 +7,42 @@ import Link from 'react-native-vector-icons/AntDesign';
 import Remove from 'react-native-vector-icons/FontAwesome';
 import { Swipeable } from 'react-native-gesture-handler';
 import { Share } from 'react-native';
+import { getDatabase, ref, get, set } from 'firebase/database';
 
-// Sample data
+
 const data = [
-  { id: '1', title: 'Card 1', owner: true },
-  { id: '2', title: 'Card 2', owner: false },
-  { id: '3', title: 'Card 3', owner: true },
-  { id: '4', title: 'Card 4', owner: false },
+  {id: 1, title: 'Card 1', owner: true },
+  {id: 2, title: 'Card 2', owner: false },
+  {id: 3, title: 'Card 3', owner: true },
+  {id: 4, title: 'Card 4', owner: false },
 ];
+
+
+const loadUserGroups = async () => {
+  try {
+    const email = await AsyncStorage.getItem('email');
+    if (!email) {
+      console.error('No email found in AsyncStorage');
+      return [];
+    }
+
+    const encodedEmail = encodeEmail(email);
+    const db = getDatabase();
+    const userRef = ref(db, `Users/${encodedEmail}`);
+    const snapshot = await get(userRef);
+
+    if (snapshot.exists()) {
+      const userData = snapshot.val();
+      return userData.Groups || [];
+    } else {
+      console.error('User not found in database');
+      return [];
+    }
+  } catch (error) {
+    console.error('Error loading user groups:', error);
+    return [];
+  }
+};
 
 // Group management functions
 function shareLink(url) {
@@ -23,6 +51,10 @@ function shareLink(url) {
     message: `Check out this link: ${url}`,
   }).catch((error) => console.log('Error sharing link:', error));
 }
+
+const encodeEmail = (email) => {
+  return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
+};
 
 function removeGroup(groupId) {
   Alert.alert(
@@ -43,7 +75,27 @@ function removeGroup(groupId) {
 }
 
 function addGroup() {
-  alert('Add Group');
+  dbAdd("Group1");
+}
+const dbAdd = async (group) => {
+  const db = getDatabase();
+  set(ref(db, `Groups/${group}`), {
+    Owner: encodeEmail(await AsyncStorage.getItem('email')),
+    AuthenticatedUsers: ["Email 1", "Email 2", "Email 3"],
+    Guests: {
+      1828283892: {
+        Name: "Guest 1",
+        Email: "blah@gmail.com"
+      },
+      9329849904: {
+        Name: "Guest 2",
+      },
+      8924857428: {
+        Name: "Guest 3",
+        Email: "blah2@outlook.com"
+      }
+    }
+  }).then(r => console.log('Data set.'));
 }
 
 // Card Component
@@ -71,7 +123,44 @@ const Card = ({ title, owner, onPress, onSwipeOpen }) => {
 
 // Dashboard Component
 const Dashboard = ({ route, navigation }) => {
-  const { user } = route.params;
+  const [groups, setGroups] = useState([]);
+
+  useEffect(() => {
+    const fetchGroups = async () => {
+      try {
+        const email = await AsyncStorage.getItem('email');
+        if (!email) {
+          console.error('No email found in AsyncStorage');
+          return;
+        }
+
+        const encodedEmail = encodeEmail(email);
+        const db = getDatabase();
+        const groupsRef = ref(db, 'Groups');
+        const snapshot = await get(groupsRef);
+
+        if (snapshot.exists()) {
+          const groupsData = snapshot.val();
+          let groupData = [];
+
+          for (const groupId in groupsData) {
+            const group = groupsData[groupId];
+            const isOwner = group.Owner === encodedEmail;
+            groupData.push({ title: groupId, owner: isOwner });
+          }
+
+          setGroups(groupData);
+          console.log(groups);
+        } else {
+          console.error('No groups found in database');
+        }
+      } catch (error) {
+        console.error('Error loading groups:', error);
+      }
+    };
+
+    fetchGroups();
+  }, []);
 
   const onLogout = async () => {
     await AsyncStorage.removeItem('authToken');
@@ -86,8 +175,8 @@ const Dashboard = ({ route, navigation }) => {
     <View style={styles.container}>
       <Text style={styles.subHeader}>Your Groups</Text>
       <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
+        data={groups}
+        keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
           <Card
             title={item.title}

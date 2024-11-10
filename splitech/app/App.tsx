@@ -1,8 +1,9 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import {createNativeStackNavigator} from '@react-navigation/native-stack';
+import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import Home from './Home';
+import Name from './Name';
 import Dashboard from './Dashboard';
 import GroupDetails from './GroupDetails';
 import TransactionDetails from './TransactionDetails';
@@ -74,6 +75,16 @@ const App = () => {
                 headerStyle: { backgroundColor: '#F4A442' },
                 headerTintColor: '#fff',
                 headerTitleStyle: { fontWeight: 'bold' },
+                }}
+            />
+            <Stack.Screen
+                name="Name"
+                component={Name}
+                options={{
+                    title: 'Name',
+                    headerStyle: {backgroundColor: '#F4A442'},
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {fontWeight: 'bold'},
                 }}
             />
         </Stack.Navigator>
