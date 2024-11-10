@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const Dashboard = ({ route, navigation }) => {
   const { user } = route.params; // Receive user data from navigation
 
+  // Log out logic, bugged rn so commenting it out
   const onLogout = async () => {
     await AsyncStorage.removeItem('authToken');
     navigation.replace('Home'); // Navigate back to Home screen
@@ -17,9 +18,9 @@ const Dashboard = ({ route, navigation }) => {
       <Text style={styles.userText}>Name: {user.name}</Text>
       <Text style={styles.userText}>Email: {user.email}</Text>
       {/* Add more user info or functionalities as needed */}
-      <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={onLogout}>
+      {/* <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={onLogout}>
         <Text style={styles.buttonText}>Log Out</Text>
-      </TouchableOpacity>
+      </TouchableOpacity> */}
     </View>
   );
 };
