@@ -4,6 +4,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import Home from './Home';
 import Dashboard from './Dashboard';
+import GroupDetails from './GroupDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -29,6 +30,17 @@ const App = () => {
             headerTitleStyle: { fontWeight: 'bold' },
             }} 
         />
+        {/* Group Screen */}
+        <Stack.Screen
+            name="GroupDetails"
+            component={GroupDetails}
+            options={{
+              title: 'Group Details',
+              headerStyle: { backgroundColor: '#F4A442' },
+              headerTintColor: '#fff',
+              headerTitleStyle: { fontWeight: 'bold' },
+            }}
+          />
         </Stack.Navigator>
     </GestureHandlerRootView>
   );
