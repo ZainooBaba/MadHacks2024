@@ -21,6 +21,23 @@ const data = [
   {id: 4, title: 'Card 4', owner: false },
 ];
 
+const delimiteUrl = (input: string) => {
+  const parts = input.split('?');
+  
+  // Check if we have at least two `?` symbols
+  if (parts.length < 3) {
+    console.log("The input doesn't contain enough '?' characters");
+    return [];
+  }
+  
+  // Get the three parts: before first `?`, between two `?`, and the rest
+  const part1 = parts[0];
+  const part2 = parts[1];
+  const part3 = parts.slice(2).join("?");
+  
+  return [part1, part2, part3];
+}
+
 
 
 const loadUserGroups = async () => {
@@ -102,7 +119,7 @@ const dbAdd = async (group) => {
 const Card = ({ title, owner, onPress, onSwipeOpen }) => {
   const renderLeftActions = () => (
     <View style={styles.leftActionContainer}>
-      <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}?invite?${title}`)}>
+      <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}?invite?${title.replaceAll(" ","?")}`)}>
         <Link name="link" size={40} color="#fff" />
       </Pressable>
       <Pressable style={[styles.cardButtons, styles.deleteButton]} onPress={() => removeGroup('EXAMPLE_GROUP_ID')}>
@@ -223,7 +240,8 @@ const Dashboard = ({ route, navigation }) => {
     await AsyncStorage.setItem('virginLink', "false");
   };
   const aceptInvitation = async() => {
-    const groupId = groupInvite?.split('?').pop();
+    if(!groupInvite) return;
+    const groupId = delimiteUrl(groupInvite)[2].replaceAll("?"," ");
     alert(`Accepted invitation to group ${groupId}`);
     setGroupInvite(null);
     await AsyncStorage.setItem('virginLink', "false");
@@ -235,12 +253,20 @@ const Dashboard = ({ route, navigation }) => {
     <View style={styles.container}>
       <Text style={styles.subHeader}>Your Groups</Text>
       {groupInvite && (
-        <View>
-          <Text>Do You Want To Join //InviterName//'s Group {groupInvite?.split('?').pop()}</Text>
-          <Button title="Join Group" onPress={() => aceptInvitation()} />
-          <Button title="Decline" onPress={() => rejectInvitation(null)} />
-        </View>
-      )}
+  <View style={styles.overlay}>
+    <View style={styles.invitationContainer}>
+      <Text style={styles.invitationText}>
+        Do you want to join
+      </Text>
+      <Text style={styles.invitationText2}>
+        {delimiteUrl(groupInvite)[2].replaceAll("?"," ")}?</Text>
+      <View style={styles.invitationButtons}>
+        <Button title="Join Group" onPress={aceptInvitation} />
+        <Button title="Decline" color="red" onPress={() => rejectInvitation(null)} />
+      </View>
+    </View>
+  </View>
+)}
       <FlatList
         data={groups}
         keyExtractor={(item, index) => index.toString()}
@@ -268,6 +294,49 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     padding: 20,
+  },
+  overlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  invitationContainer: {
+    width: '85%',
+    padding: 25,
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    elevation: 12,
+  },
+  invitationText: {
+    fontSize: 20,
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontWeight: '600',
+  },
+  invitationText2: {
+    fontSize: 20,
+    color: '#333',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontWeight: '600',
+    marginBottom: 30,
+  },
+  invitationButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
   },
   subHeader: {
     fontSize: 24,
@@ -303,7 +372,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 25,
-    overflow: 'hidden', // Ensures the rounded corners apply to swipe buttons
+    overflow: 'hidden',
     marginBottom: 20,
   },
   cardButtons: {
@@ -329,3 +398,4 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 });
+
