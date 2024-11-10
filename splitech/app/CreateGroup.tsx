@@ -163,7 +163,9 @@ export default function CreateGroup({navigation}) {
                     )}
                 />
             </View>
-            <Button title="Submit Group" onPress={dbAdd} />
+            <TouchableOpacity onPress={dbAdd} style={styles.addButton2}>
+                <Text style={styles.addButtonText}>Submit Group</Text>
+            </TouchableOpacity>
         </View>
     );
 }
@@ -186,8 +188,9 @@ const styles = StyleSheet.create({
         borderColor: '#555',
     },
     subtitle: {
-        fontSize: 18,
+        fontSize: 19,
         marginVertical: 10,
+        fontWeight: 'bold',
     },
     input: {
         borderColor: '#aaa',
@@ -203,13 +206,21 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 20,
     },
+    addButton2: {
+        backgroundColor: '#007BFF',
+        padding: 10,
+        borderRadius: 15,
+        alignItems: 'center',
+        // marginBottom: 20,
+        paddingVertical:25
+    },
     addButtonText: {
         color: 'white',
         fontWeight: 'bold',
     },
     membersListContainer: {
-        maxHeight: 350,
-        minHeight: 350,
+        maxHeight: 330,
+        minHeight: 330,
         marginBottom: 20,
     },
     memberCard: {
@@ -244,5 +255,12 @@ const styles = StyleSheet.create({
     },
     addEmail2: {
         color: '#8E98A8',
+    },
+    submit: {
+        padding: 10,
+        borderRadius: 5,
+        backgroundColor: '#dddddd',
+        color: 'white',
+        fontWeight: 'bold',
     },
 });

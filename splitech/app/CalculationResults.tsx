@@ -144,7 +144,7 @@ const CalculationResults = ({ route }) => {
         renderItem={renderTransaction}
         contentContainerStyle={styles.resultsContainer}
       />
-      <Button title="Log Transactions" onPress={logTransactions} />
+      <Button title="Send Emails" onPress={logTransactions} />
     </View>
   );
 };
