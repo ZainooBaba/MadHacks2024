@@ -85,7 +85,6 @@ const Card = ({ title, owner, onSwipeOpen }) => {
 
 // Dashboard Component
 const Dashboard = ({ route, navigation }) => {
-  const { user } = route.params;
 
   // Log out function
   const onLogout = async () => {

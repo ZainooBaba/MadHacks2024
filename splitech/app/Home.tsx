@@ -2,7 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { Alert, StyleSheet, Text, View, Image, ActivityIndicator, TouchableOpacity, Platform } from 'react-native';
 import * as AuthSession from 'expo-auth-session';
+import {initializeApp, getApps, getApp} from 'firebase/app';
+import {getDatabase, ref, onValue, set, get} from 'firebase/database';
+import { firebaseConfig } from '@/firebaseConfig';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+if (!getApps().length) {
+  initializeApp(firebaseConfig);
+}
 
 // Auth0 Configuration
 const AUTH0_DOMAIN = 'dev-2l54u7lu3bidibfm.us.auth0.com';
@@ -38,6 +46,10 @@ function decodeJWT(token) {
   }
 }
 
+const encodeEmail = (email) => {
+  return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
+};
+
 const Home = ({ navigation }) => {
   const [userInfo, setUserInfo] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,7 +71,7 @@ const Home = ({ navigation }) => {
 
   useEffect(() => {
     if (Platform.OS === 'web') {
-      const handleAuth = () => {
+      const handleAuth = async () => {
         const hash = window.location.hash;
         const idTokenMatch = hash.match(/id_token=([^&]+)/);
         if (idTokenMatch) {
@@ -68,10 +80,33 @@ const Home = ({ navigation }) => {
           if (decoded) {
             setUserInfo(decoded);
             AsyncStorage.setItem('authToken', idToken);
+            AsyncStorage.setItem('email', decoded.email);
             setLoggedOut(false);
-            Alert.alert('Logged in!', `Welcome ${decoded.name}`);
-            window.history.replaceState(null, '', window.location.pathname);
-            navigation.replace('Dashboard', { user: decoded });
+            const db = getDatabase();
+            const encodedEmail = encodeEmail(decoded.email);
+            const userRef = ref(db, `Users/${encodedEmail}`);
+            const snapshot = await get(userRef);
+
+            if (snapshot.exists()) {
+              const userData = snapshot.val();
+              await AsyncStorage.setItem('name', userData.name);
+              navigation.replace('Dashboard');
+            } else {
+              window.history.replaceState(null, '', window.location.pathname);
+              navigation.replace('Name');
+            }
+            // const app = getApp();
+            // const database = getDatabase(app);
+            // const userRef = ref(database, `Users/${userInfo}`);
+
+            // const app = getApp()
+            // const database = getDatabase(app);
+            // const dbRef = ref(database, `Users/`);
+            // set(dbRef,{
+            //   name: 'Ada Lovelace',
+            //   age: 31,
+            // }).then(() => console.log('Data set.'));
+
           }
         }
       };
@@ -81,22 +116,35 @@ const Home = ({ navigation }) => {
   }, [navigation]);
 
   useEffect(() => {
-    if (response?.type === 'success' && !hasHandledResponse && !loggedOut) {
-      setHasHandledResponse(true);
-      const { id_token } = response.params;
-      const decoded = decodeJWT(id_token);
-      if (decoded) {
-        setUserInfo(decoded);
-        AsyncStorage.setItem('authToken', id_token);
-        setLoggedOut(false);
-        Alert.alert('Logged in!', `Welcome ${decoded.name}`);
-        navigation.replace('Dashboard', { user: decoded });
-      }
-    } else if (response?.type === 'error') {
-      Alert.alert('Authentication error', response.error?.message || 'An error occurred');
-    }
-  }, [response, hasHandledResponse, loggedOut, navigation]);
+    const handleResponse = async () => {
+      if (response?.type === 'success' && !hasHandledResponse && !loggedOut) {
+        setHasHandledResponse(true);
+        const { id_token } = response.params;
+        const decoded = decodeJWT(id_token);
+        if (decoded) {
+          setUserInfo(decoded);
+          await AsyncStorage.setItem('authToken', id_token);
+          setLoggedOut(false);
+          const db = getDatabase();
+          const encodedEmail = encodeEmail(decoded.email);
+          const userRef = ref(db, `Users/${encodedEmail}`);
+          const snapshot = await get(userRef);
 
+          if (snapshot.exists()) {
+            const userData = snapshot.val();
+            await AsyncStorage.setItem('name', userData.name);
+            navigation.replace('Dashboard');
+          } else {
+            navigation.replace('Name');
+          }
+        }
+      } else if (response?.type === 'error') {
+        Alert.alert('Authentication error', response.error?.message || 'An error occurred');
+      }
+    };
+
+    handleResponse();
+  }, [response, hasHandledResponse, loggedOut, navigation]);
   const onLogin = async () => {
     if (!userInfo) {
       setIsLoading(true);
