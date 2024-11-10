@@ -1,70 +1,86 @@
-import React, { useEffect, useState } from 'react';
-import { View, TextInput, StyleSheet, Button } from 'react-native';
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { getDatabase, ref, get, set } from 'firebase/database';
-
-// Function to encode email address
-const encodeEmail = (email) => {
-    return email.replace('.', ',').replace('#', ',').replace('$', ',').replace('[', ',').replace(']', ',');
-};
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert } from 'react-native';
 
 const Name = ({ navigation }) => {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
+  const [name, setName] = useState('');
 
-    useEffect(() => {
-        const fetchEmail = async () => {
-            const storedEmail = await AsyncStorage.getItem('email');
-            if (storedEmail) {
-                setEmail(storedEmail);
-            }
-        };
-        fetchEmail();
-    }, []);
+  const handleSaveName = () => {
+    if (!name.trim()) {
+      Alert.alert('Invalid Input', 'Please enter your name.');
+      return;
+    }
+    // Proceed to the dashboard after setting the name
+    navigation.replace('Dashboard');
+  };
 
-    const saveName = async () => {
-        if (name) {
-            const db = getDatabase();
-            const encodedEmail = encodeEmail(email);
-            const userRef = ref(db, `Users/${encodedEmail}`);
-            const snapshot = await get(userRef);
-            if (!snapshot.exists()) {
-                await set(userRef, {name});
-            }
-
-            await AsyncStorage.setItem('name', name).then(() => {
-                navigation.replace('Dashboard', {});
-            });
-        }
-    };
-
-    return (
-        <View style={styles.container}>
-            <TextInput
-                style={styles.input}
-                placeholder="Enter your name"
-                value={name}
-                onChangeText={setName}
-            />
-            <Button title="Save" onPress={saveName} />
-        </View>
-    );
+  return (
+    <View style={styles.container}>
+      <Text style={styles.header}>Enter Your Name</Text>
+      <Text style={styles.prompt}>
+        We’ll use this name in your profile and for all interactions.
+      </Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Your Name"
+        placeholderTextColor="#AAA"
+        value={name}
+        onChangeText={setName}
+      />
+      <TouchableOpacity style={styles.button} onPress={handleSaveName}>
+        <Text style={styles.buttonText}>Save</Text>
+      </TouchableOpacity>
+    </View>
+  );
 };
 
 export default Name;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        backgroundColor: '#FFFFFF',
-    },
-    input: {
-        height: 40,
-        borderColor: 'gray',
-        borderWidth: 1,
-        paddingHorizontal: 10,
-        width: '80%',
-    },
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+  },
+  header: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#2D9CDB',
+    marginBottom: 15,
+    textAlign: 'center',
+  },
+  prompt: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginHorizontal: 10,
+    marginBottom: 20,
+  },
+  input: {
+    width: '90%',
+    padding: 15,
+    fontSize: 18,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+    borderRadius: 8,
+    backgroundColor: '#F3F4F6',
+    marginBottom: 20,
+    textAlign: 'center',
+    color: '#333',
+  },
+  button: {
+    backgroundColor: '#F4A442',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 8,
+    alignItems: 'center',
+    width: '60%',
+    marginTop: 20,
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
 });

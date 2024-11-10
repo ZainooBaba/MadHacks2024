@@ -3,6 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 
 import Home from './Home';
+import Name from './Name';
 import Dashboard from './Dashboard';
 import GroupDetails from './GroupDetails';
 import TransactionDetails from './TransactionDetails';
