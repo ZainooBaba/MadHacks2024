@@ -186,6 +186,9 @@ const Home = ({ navigation }) => {
           <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={onLogout}>
             <Text style={styles.buttonText}>Log Out</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={[styles.button, styles.logoutButton]} onPress={() => {navigation.navigate('Dashboard')}}>
+            <Text style={styles.buttonText}>Next</Text>
+          </TouchableOpacity>
         </>
       ) : (
         <>
