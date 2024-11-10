@@ -9,6 +9,7 @@ import GroupDetails from './GroupDetails';
 import TransactionDetails from './TransactionDetails';
 import CalculationResults from './CalculationResults';
 import CreateGroup from './CreateGroup';
+import AddTransaction from './AddTransaction';
 
 const Stack = createNativeStackNavigator();
 
@@ -82,6 +83,16 @@ const App = () => {
                 component={Name}
                 options={{
                     title: 'Name',
+                    headerStyle: {backgroundColor: '#F4A442'},
+                    headerTintColor: '#fff',
+                    headerTitleStyle: {fontWeight: 'bold'},
+                }}
+            />
+            <Stack.Screen
+                name="AddTransaction"
+                component={AddTransaction}
+                options={{
+                    title: 'Add Transaction',
                     headerStyle: {backgroundColor: '#F4A442'},
                     headerTintColor: '#fff',
                     headerTitleStyle: {fontWeight: 'bold'},
