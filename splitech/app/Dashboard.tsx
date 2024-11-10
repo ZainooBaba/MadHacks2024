@@ -185,7 +185,7 @@ const Dashboard = ({ route, navigation }) => {
   };
 
   function addGroup() {
-    navigation.replace('CreateGroup');
+    navigation.navigate('CreateGroup');
   }
 
   return (
