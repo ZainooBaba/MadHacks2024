@@ -75,8 +75,8 @@ const Dashboard = ({route, navigation}) => {
 // Group management functions
     function shareLink(url) {
         Share.share({
-            title: 'Check out this link',
-            message: `Check out this link: ${url}`,
+            title: 'Add People to Group',
+            message: `Click this link to join my splitech group:\n${url}`,
         }).catch((error) => console.log('Error sharing link:', error));
     }
 
@@ -127,14 +127,16 @@ const Dashboard = ({route, navigation}) => {
                 <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink(`${URL_HOST}?invite?${title.replaceAll(" ","?")}`)}>
                   <Link name="link" size={40} color="#fff"/>
                 </Pressable>
-                <Pressable style={[styles.cardButtons, styles.deleteButton]} onPress={() => removeGroup(title, owner)}>
+                {owner && (
+                  <Pressable style={[styles.cardButtons, styles.deleteButton]} onPress={() => removeGroup(title, owner)}>
                     <Remove name="remove" size={40} color="#fff"/>
-                </Pressable>
+                  </Pressable>
+                )}
             </View>
         );
 
         return (
-            <Swipeable renderLeftActions={owner ? renderLeftActions : undefined} onSwipeableOpen={onSwipeOpen} overshootFriction={1000}>
+            <Swipeable renderLeftActions={renderLeftActions} onSwipeableOpen={onSwipeOpen} overshootFriction={1000}>
                 <Pressable onPress={onPress} style={styles.cardContainer}>
                     {owner && <Icon name="crown" size={20} color="gold" style={styles.crownIcon}/>}
                     <Text style={styles.title}>{title}</Text>
