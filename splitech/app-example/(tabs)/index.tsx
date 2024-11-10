@@ -1,11 +1,29 @@
-import { Image, StyleSheet, Platform } from 'react-native';
-
+import { Image, StyleSheet, Button, Platform } from 'react-native';
+import {initializeApp, getApps, getApp} from 'firebase/app';
+import {getDatabase, ref, onValue, set} from 'firebase/database';
+import { firebaseConfig } from '../../firebaseConfig';
 import { HelloWave } from '@/components/HelloWave';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
+}
+
 export default function HomeScreen() {
+
+  const writeRandomData = () => {
+    const app = getApp()
+    const database = getDatabase(app);
+    const dbRef = ref(database, `users/123`);
+    set(dbRef,{
+      name: 'Ada Lovelace',
+      age: 31,
+    })
+    .then(() => console.log('Data set.'));
+  };
+
   return (
     <ParallaxScrollView
       headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
@@ -46,25 +64,117 @@ export default function HomeScreen() {
           <ThemedText type="defaultSemiBold">app-example</ThemedText>.
         </ThemedText>
       </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <Button title="Write Random Data" onPress={writeRandomData} />
+      </ThemedView>
     </ParallaxScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  listContainer: {
+    padding: 10,
+  },
+  card_container: {
+    backgroundColor: '#fff',
+    marginBottom: 24,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderRadius: 25,
+  },
+
+  cardTittleContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderRadius: 25,
+  },
+  cardButtonContainer: {
+    backgroundColor: '#fff',
+    paddingRight: 0,
+    paddingLeft: 0,
+    borderRadius: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    borderRadius: 8,
+    borderTopLeftRadius: 25,
+    borderBottomLeftRadius: 25
+
+  },
+  crownIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    zIndex: 5,
+  },
+  title: {
+    fontSize: 26,
+    marginTop: 5,
+  },
+  rightActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  cardButtons: {
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 10,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  editButton: {
+    backgroundColor: '#4CAF50',
+    borderTopLeftRadius: 25,
+    borderBottomLeftRadius: 25
+  },
+  deleteButton: {
+    backgroundColor: '#F44336',
+  },
+  actionText: {
+    color: '#fff',
+    fontWeight: 'bold',
   },
 });
+
+function shareLink(url: string): void {
+  Share.share({
+    title: 'Check out this link',
+    message: `Check out this link: ${url}`,
+  }).catch((error) => console.log('Error sharing link:', error));
+}
+
+//TODO IMPLEMENT REMOVE GROUP
+function removeGroup(groupId: string): void {
+  Alert.alert(
+    'Remove Group',
+    'Are you sure you want to remove this group?',
+    [
+      {
+        text: 'Cancel',
+        style: 'cancel',
+      },
+      {
+        text: 'Remove',
+        onPress: () => {
+          // Logic to remove the group
+          console.log(`Group with ID ${groupId} removed`);
+          // You can update the state or perform any other necessary actions here
+        },
+        style: 'destructive',
+      },
+    ],
+    { cancelable: true }
+  );
+}
+
+//TODO IMPLEMENT ADD GROUP
+function addGroup(): void {
+  alert('Add Group');
+}
