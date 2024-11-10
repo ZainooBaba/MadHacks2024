@@ -1,69 +1,73 @@
-import React from 'react';
-import { StyleSheet, Pressable, Alert } from 'react-native';
-import { FlatList, Text, View } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome6';
-import Link from 'react-native-vector-icons/AntDesign';
-import Remove from 'react-native-vector-icons/FontAwesome';
-import { Swipeable } from 'react-native-gesture-handler';
-import { Share } from 'react-native';
+import { Image, StyleSheet, Button, Platform } from 'react-native';
+import {initializeApp, getApps, getApp} from 'firebase/app';
+import {getDatabase, ref, onValue, set} from 'firebase/database';
+import { firebaseConfig } from '../../firebaseConfig';
+import { HelloWave } from '@/components/HelloWave';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
-const data = [
-  { id: '1', title: 'Card 1', owner: true },
-  { id: '2', title: 'Card 2', owner: false },
-  { id: '3', title: 'Card 3', owner: true },
-  { id: '4', title: 'Card 4', owner: false },
-  // TODO import data
-];
-
-interface CardProps {
-  title: string;
-  owner: boolean;
-  onSwipeOpen: () => void;
+if (!getApps().length) {
+    initializeApp(firebaseConfig);
 }
 
-const Card = ({ title, owner, onSwipeOpen }: CardProps) => {
-  const renderLeftActions = () => (
-    <View style={[styles.rightActions, styles.cardButtonContainer]}>
-      <Pressable style={[styles.cardButtons, styles.editButton]} onPress={() => shareLink("www.Example.com")}>
-      <Link name="link" size={20} color="gold"  />
-      </Pressable>
-      <Pressable style={[styles.cardButtons, styles.deleteButton]} onPress={() => removeGroup("EXAMPLE_GROUP_ID")}>
-      <Remove name="remove" size={20} color="gold"  />
-      </Pressable>
-    </View>
-  );
-
-  return (
-    <View style={styles.card_container}>
-      {owner && <Icon name="crown" size={20} color="gold" style={styles.crownIcon} />}
-      <Swipeable renderLeftActions={renderLeftActions} overshootFriction={10000} onSwipeableOpen={() => onSwipeOpen()}>
-      <Pressable style={styles.cardTittleContainer}>
-        <View>
-        <Text style={styles.title}>{title}</Text>
-        </View>
-      </Pressable>
-      </Swipeable>
-    </View>
-  );
-};
-
 export default function HomeScreen() {
-  function handleOnSwipeOpen(item: { id: string; title: string; owner: boolean; }): void {
-    //TODO: Close all other cards
-  }
+
+  const writeRandomData = () => {
+    const app = getApp()
+    const database = getDatabase(app);
+    const dbRef = ref(database, `users/123`);
+    set(dbRef,{
+      name: 'Ada Lovelace',
+      age: 31,
+    })
+    .then(() => console.log('Data set.'));
+  };
 
   return (
-    <View style={{ flex: 1, paddingTop: 50, backgroundColor:'gray' }}>
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <Card title={item.title} owner={item.owner} onSwipeOpen={() => handleOnSwipeOpen(item)}/>}
-        contentContainerStyle={styles.listContainer}
-      />
-      <Pressable onPress={() => addGroup()}>
-        <Text style={{ textAlign: 'center', padding: 10, color: 'blue' }}>New Group</Text>
-        </Pressable>
-    </View>
+    <ParallaxScrollView
+      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
+      headerImage={
+        <Image
+          source={require('@/assets/images/partial-react-logo.png')}
+          style={styles.reactLogo}
+        />
+      }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">Welcome!</ThemedText>
+        <HelloWave />
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
+        <ThemedText>
+          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
+          Press{' '}
+          <ThemedText type="defaultSemiBold">
+            {Platform.select({ ios: 'cmd + d', android: 'cmd + m' })}
+          </ThemedText>{' '}
+          to open developer tools.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
+        <ThemedText>
+          Tap the Explore tab to learn more about what's included in this starter app.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
+        <ThemedText>
+          When you're ready, run{' '}
+          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
+          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
+          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
+        </ThemedText>
+      </ThemedView>
+      <ThemedView style={styles.stepContainer}>
+        <Button title="Write Random Data" onPress={writeRandomData} />
+      </ThemedView>
+    </ParallaxScrollView>
   );
 }
 

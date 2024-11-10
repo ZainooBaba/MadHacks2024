@@ -1,15 +1,15 @@
-import { Tabs } from 'expo-router';
+import {Tabs} from 'expo-router';
 import React from 'react';
 
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { Colors } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {TabBarIcon} from '@/components/navigation/TabBarIcon';
+import {Colors} from '@/constants/Colors';
+import {useColorScheme} from '@/hooks/useColorScheme';
 
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
+    const colorScheme = useColorScheme();
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -42,8 +42,16 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+                name="read"
+                options={{
+                    title: 'Read Data',
+                    tabBarIcon: ({color, focused}) => (
+                        <TabBarIcon name={focused ? 'code-slash' : 'code-slash-outline'} color={color}/>
+                    ),
+                }}
+            />
     </Tabs>
     </GestureHandlerRootView>
-
   );
 }
