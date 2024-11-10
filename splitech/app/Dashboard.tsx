@@ -76,7 +76,7 @@ const Dashboard = ({route, navigation}) => {
     function shareLink(url) {
         Share.share({
             title: 'Add People to Group',
-            message: `Click this link to join my splitech group:\n${url}`,
+            message: `Click this link to join my splitech group:\n ${url}`,
         }).catch((error) => console.log('Error sharing link:', error));
     }
 
@@ -345,8 +345,8 @@ const styles = StyleSheet.create({
   },
   crownIcon: {
     position: 'absolute',
-    top: 10,
-    right: 10,
+    top: 18,
+    right: 18,
   },
   title: {
     fontSize: 26,
@@ -369,18 +369,27 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
     borderTopLeftRadius: 25,
     borderBottomLeftRadius: 25,
+    paddingVertical: 10,
+
   },
   deleteButton: {
     backgroundColor: '#F44336',
     borderTopRightRadius: 25,
     borderBottomRightRadius: 25,
+    paddingVertical: 10,
   },
   newGroupButton: {
     textAlign: 'center',
     padding: 10,
     color: 'blue',
-    fontSize: 18,
+    fontSize: 22,
     marginTop: 10,
+    // backgroundColor: '#dddddd',
+    borderRadius: 20,
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.25,
+    shadowRadius: 6,
+    paddingVertical: 10,
   },
   overlay: {
     position: 'absolute',
