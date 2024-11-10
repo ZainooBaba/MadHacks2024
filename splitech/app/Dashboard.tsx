@@ -134,7 +134,7 @@ const Dashboard = ({route, navigation}) => {
         );
 
         return (
-            <Swipeable renderLeftActions={owner ? renderLeftActions : null} onSwipeableOpen={onSwipeOpen}>
+            <Swipeable renderLeftActions={owner ? renderLeftActions : undefined} onSwipeableOpen={onSwipeOpen} overshootFriction={1000}>
                 <Pressable onPress={onPress} style={styles.cardContainer}>
                     {owner && <Icon name="crown" size={20} color="gold" style={styles.crownIcon}/>}
                     <Text style={styles.title}>{title}</Text>
@@ -283,107 +283,102 @@ const Dashboard = ({route, navigation}) => {
       </TouchableOpacity>
     </View>
   );
-    return (
-        <View style={styles.container}>
-            <Text style={styles.subHeader}>Your Groups</Text>
-            {groupInvite && (
-                <View>
-                    <Text>Do You Want To Join //InviterName//'s Group {groupInvite?.split('?').pop()}</Text>
-                    <Button title="Join Group" onPress={() => aceptInvitation()}/>
-                    <Button title="Decline" onPress={() => rejectInvitation(null)}/>
-                </View>
-            )}
-            <FlatList
-                data={groups}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({item}) => (
-                    <Card
-                        title={item.title}
-                        owner={item.owner}
-                        onPress={() => handleCardPress(item.title)}
-                        onSwipeOpen={() => console.log("Swipe opened for", item.title)}
-                    />
-                )}
-                contentContainerStyle={styles.listContainer}
-            />
-            <TouchableOpacity onPress={addGroup}>
-                <Text style={styles.newGroupButton}>New Group</Text>
-            </TouchableOpacity>
-        </View>
-    );
+    // return (
+    //     <View style={styles.container}>
+    //         <Text style={styles.subHeader}>Your Groups</Text>
+    //         {groupInvite && (
+    //             <View>
+    //                 <Text>Do You Want To Join //InviterName//'s Group {groupInvite?.split('?').pop()}</Text>
+    //                 <Button title="Join Group" onPress={() => aceptInvitation()}/>
+    //                 <Button title="Decline" onPress={() => rejectInvitation(null)}/>
+    //             </View>
+    //         )}
+    //         <FlatList
+    //             data={groups}
+    //             keyExtractor={(item, index) => index.toString()}
+    //             renderItem={({item}) => (
+    //                 <Card
+    //                     title={item.title}
+    //                     owner={item.owner}
+    //                     onPress={() => handleCardPress(item.title)}
+    //                     onSwipeOpen={() => console.log("Swipe opened for", item.title)}
+    //                 />
+    //             )}
+    //             contentContainerStyle={styles.listContainer}
+    //         />
+    //         <TouchableOpacity onPress={addGroup}>
+    //             <Text style={styles.newGroupButton}>New Group</Text>
+    //         </TouchableOpacity>
+    //     </View>
+    // );
 };
 
 export default Dashboard;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#FFFFFF',
-        padding: 20,
-    },
-    subHeader: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: '#111827',
-        marginBottom: 10,
-        textAlign: 'center',
-    },
-    listContainer: {
-        padding: 10,
-    },
-    cardContainer: {
-        backgroundColor: '#fff',
-        marginBottom: 20,
-        padding: 15,
-        borderRadius: 25,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 3,
-    },
-    crownIcon: {
-        position: 'absolute',
-        top: 10,
-        right: 10,
-    },
-    title: {
-        fontSize: 26,
-        color: '#111827',
-    },
-    leftActionContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        borderRadius: 25,
-        overflow: 'hidden', // Ensures the rounded corners apply to swipe buttons
-        marginBottom: 20,
-    },
-    cardButtons: {
-        width: 80,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    editButton: {
-        backgroundColor: '#4CAF50',
-        borderTopLeftRadius: 25,
-        borderBottomLeftRadius: 25,
-    },
-    deleteButton: {
-        backgroundColor: '#F44336',
-        borderTopRightRadius: 25,
-        borderBottomRightRadius: 25,
-    },
-    newGroupButton: {
-        textAlign: 'center',
-        padding: 10,
-        color: 'blue',
-        fontSize: 18,
-        marginTop: 10,
-    },
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     padding: 20,
+  },
+  subHeader: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#111827',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  listContainer: {
+    padding: 10,
+  },
+  cardContainer: {
+    backgroundColor: '#fff',
+    marginBottom: 20,
+    padding: 15,
+    borderRadius: 25,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
+  crownIcon: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+  },
+  title: {
+    fontSize: 26,
+    color: '#111827',
+  },
+  leftActionContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 25,
+    overflow: 'hidden', // Ensures the rounded corners apply to swipe buttons
+    marginBottom: 20,
+  },
+  cardButtons: {
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  editButton: {
+    backgroundColor: '#4CAF50',
+    borderTopLeftRadius: 25,
+    borderBottomLeftRadius: 25,
+  },
+  deleteButton: {
+    backgroundColor: '#F44336',
+    borderTopRightRadius: 25,
+    borderBottomRightRadius: 25,
+  },
+  newGroupButton: {
+    textAlign: 'center',
+    padding: 10,
+    color: 'blue',
+    fontSize: 18,
+    marginTop: 10,
   },
   overlay: {
     position: 'absolute',
@@ -427,65 +422,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     width: '100%',
-  },
-  subHeader: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#111827',
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  listContainer: {
-    padding: 10,
-  },
-  cardContainer: {
-    backgroundColor: '#fff',
-    marginBottom: 20,
-    padding: 15,
-    borderRadius: 25,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-  },
-  crownIcon: {
-    position: 'absolute',
-    top: 10,
-    right: 10,
-  },
-  title: {
-    fontSize: 26,
-    color: '#111827',
-  },
-  leftActionContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 25,
-    overflow: 'hidden',
-    marginBottom: 20,
-  },
-  cardButtons: {
-    width: 80,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  editButton: {
-    backgroundColor: '#4CAF50',
-    borderTopLeftRadius: 25,
-    borderBottomLeftRadius: 25,
-  },
-  deleteButton: {
-    backgroundColor: '#F44336',
-    borderTopRightRadius: 25,
-    borderBottomRightRadius: 25,
-  },
-  newGroupButton: {
-    textAlign: 'center',
-    padding: 10,
-    color: 'blue',
-    fontSize: 18,
-    marginTop: 10,
   },
 });
 
