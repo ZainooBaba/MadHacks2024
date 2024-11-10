@@ -73,9 +73,6 @@ function removeGroup(groupId) {
   );
 }
 
-function addGroup() {
-  dbAdd("Group1");
-}
 const dbAdd = async (group) => {
   const db = getDatabase();
   set(ref(db, `Groups/${group}`), {
@@ -169,6 +166,10 @@ const Dashboard = ({ route, navigation }) => {
   const handleCardPress = (groupName) => {
     navigation.navigate('GroupDetails', { groupName });
   };
+
+  function addGroup() {
+    navigation.replace('CreateGroup');
+  }
 
   return (
     <View style={styles.container}>
