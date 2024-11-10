@@ -3,34 +3,34 @@ import { StyleSheet, Text, View, TextInput, TouchableOpacity, Alert, Image, Flat
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getDatabase, ref, get, set } from 'firebase/database';
 
-// Sample profile images
+// Sample profile images with file names
 const profilePictures = [
-  require('../assets/icons/image_part_001.jpg'),
-  require('../assets/icons/image_part_002.jpg'),
-  require('../assets/icons/image_part_003.jpg'),
-  require('../assets/icons/image_part_004.jpg'),
-  require('../assets/icons/image_part_005.jpg'),
-  require('../assets/icons/image_part_006.jpg'),
-  require('../assets/icons/image_part_007.jpg'),
-  require('../assets/icons/image_part_008.jpg'),
-  require('../assets/icons/image_part_009.jpg'),
+  { src: require('../assets/icons/image_part_001.jpg'), name: 'image_part_001.jpg' },
+  { src: require('../assets/icons/image_part_002.jpg'), name: 'image_part_002.jpg' },
+  { src: require('../assets/icons/image_part_003.jpg'), name: 'image_part_003.jpg' },
+  { src: require('../assets/icons/image_part_004.jpg'), name: 'image_part_004.jpg' },
+  { src: require('../assets/icons/image_part_005.jpg'), name: 'image_part_005.jpg' },
+  { src: require('../assets/icons/image_part_006.jpg'), name: 'image_part_006.jpg' },
+  { src: require('../assets/icons/image_part_007.jpg'), name: 'image_part_007.jpg' },
+  { src: require('../assets/icons/image_part_008.jpg'), name: 'image_part_008.jpg' },
+  { src: require('../assets/icons/image_part_009.jpg'), name: 'image_part_009.jpg' },
 ];
 
 const encodeEmail = email => email.replace(/[.#$[\]]/g, ',');
-  
+
 const Name = ({ navigation }) => {
   const [name, setName] = useState('');
-  const [selectedPicture, setSelectedPicture] = useState(null);
+  const [selectedPicture, setSelectedPicture] = useState(null); // Store file name
   const [email, setEmail] = useState('');
 
   useEffect(() => {
-      const fetchEmail = async () => {
-          const storedEmail = await AsyncStorage.getItem('email');
-          if (storedEmail) {
-              setEmail(storedEmail);
-          }
-      };
-      fetchEmail();
+    const fetchEmail = async () => {
+      const storedEmail = await AsyncStorage.getItem('email');
+      if (storedEmail) {
+        setEmail(storedEmail);
+      }
+    };
+    fetchEmail();
   }, []);
 
   const handleSaveProfile = async () => {
@@ -43,31 +43,29 @@ const Name = ({ navigation }) => {
       return;
     }
     try {
-        const db = getDatabase();
-        const encodedEmail = encodeEmail(email);
-        const userRef = ref(db, `Users/${encodedEmail}`);
-        const snapshot = await get(userRef);
-  
-        if (!snapshot.exists()) {
-          await set(userRef, { name, selectedPicture });
-        }
-  
-        await AsyncStorage.setItem('name', name);
-        await AsyncStorage.setItem('pfpId', selectedPicture); // Save profile picture ID to AsyncStorage
-        navigation.replace('Dashboard');
-      } catch (error) {
-        console.log(error);
-        Alert.alert('Error', 'Could not save your name. Please try again.');
+      const db = getDatabase();
+      const encodedEmail = encodeEmail(email);
+      const userRef = ref(db, `Users/${encodedEmail}`);
+      const snapshot = await get(userRef);
+
+      if (!snapshot.exists()) {
+        await set(userRef, { name, profilePicture: selectedPicture });
       }
-    // Here, save the name and selected picture in your storage or database
-    // navigation.replace('Dashboard');
+
+      await AsyncStorage.setItem('name', name);
+      await AsyncStorage.setItem('profilePicture', selectedPicture); // Save profile picture file name
+      navigation.replace('Dashboard');
+    } catch (error) {
+      console.log(error);
+      Alert.alert('Error', 'Could not save your name. Please try again.');
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.header}>Enter Your Name</Text>
       <Text style={styles.prompt}>We’ll use this name in your profile and for all interactions.</Text>
-      
+
       <TextInput
         style={styles.input}
         placeholder="Your Name"
@@ -75,18 +73,18 @@ const Name = ({ navigation }) => {
         value={name}
         onChangeText={setName}
       />
-      
+
       <Text style={styles.selectPrompt}>Choose a Profile Picture</Text>
       <FlatList
         data={profilePictures}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item) => item.name}
         renderItem={({ item }) => (
-          <TouchableOpacity onPress={() => setSelectedPicture(item)}>
+          <TouchableOpacity onPress={() => setSelectedPicture(item.name)}>
             <Image
-              source={item}
+              source={item.src}
               style={[
                 styles.profilePicture,
-                selectedPicture === item && styles.selectedPicture,
+                selectedPicture === item.name && styles.selectedPicture,
               ]}
             />
           </TouchableOpacity>
@@ -157,7 +155,7 @@ const styles = StyleSheet.create({
     borderColor: 'transparent',
   },
   selectedPicture: {
-    borderColor: '#2D9CDB', // Highlight color for selected picture
+    borderColor: '#2D9CDB',
   },
   button: {
     backgroundColor: '#F4A442',
