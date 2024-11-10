@@ -44,7 +44,7 @@ const TransactionDetails = ({ route }) => {
       </Text>
       <Text style={styles.descriptionTitle}>Description</Text>
       <Text style={styles.description}>{transaction.description}</Text>
-      <Text style={styles.membersTitle}>Members Involved</Text>
+      <Text style={styles.membersTitle}>Bought With...</Text>
       <FlatList
         data={resolvedMembers}
         keyExtractor={(item, index) => index.toString()}
